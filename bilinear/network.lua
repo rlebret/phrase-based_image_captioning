@@ -21,17 +21,17 @@ __call = function(self, params)
   -- load phrase lookup table
   -- for NP
   local fnp=torch.DiskFile(
-    params.data..'/lookup/NP_'..params.pfsz..'d_ge'..params.t..'.bin'):binary()
+    params.data..'/lookup/NP_'..params.pfsz..'d_ge'..params.minfreq..'.bin'):binary()
   local NPlookuptable=fnp:readObject()
   fnp:close()
   -- for VP
   local fvp=torch.DiskFile(
-    params.data..'/lookup/VP_'..params.pfsz..'d_ge'..params.t..'.bin'):binary()
+    params.data..'/lookup/VP_'..params.pfsz..'d_ge'..params.minfreq..'.bin'):binary()
   local VPlookuptable=fvp:readObject()
   fvp:close()
   -- for PP
   local fpp=torch.DiskFile(
-    params.data..'/lookup/PP_'..params.pfsz..'d_ge'..params.t..'.bin'):binary()
+    params.data..'/lookup/PP_'..params.pfsz..'d_ge'..params.minfreq..'.bin'):binary()
   local PPlookuptable=fpp:readObject()
   fpp:close()
   local lookuptable = {NPlookuptable, VPlookuptable, PPlookuptable}

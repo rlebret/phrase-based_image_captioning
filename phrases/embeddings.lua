@@ -21,10 +21,10 @@ local params = cmd:parse(arg)
 --------------------------------------------------------------------------------
 -- load vocabulary (a word per line)
 local words={}
-local nword = 0
+local vocabsz = 0
 for line in io.lines(params.vocab) do
-  nword = nword+1
-  vocab[word]=nword
+  vocabsz = vocabsz+1
+  vocab[vocabsz]=vocabsz
 end
 print("# of word embeddings = "..vocabsz)
 ---- load embeddings which are in a torch.FloatTensor(nword, dim)
@@ -32,7 +32,7 @@ local femb = torch.DiskFile(params.emb, 'r'):binary()
 -- get size
 femb:seekEnd()
 local wfsz = (f:position()-1)/4/vocabsz
-if wfsz < pfsz then
+if wfsz < params.pfsz then
   error('word embeddings dimension (=' .. wfsz .. ') is too small')
 end
 femb:seek(1)
@@ -61,7 +61,7 @@ for line in io.lines(params.dir..'/vocab/'..params.phr..'.txt') do
     end
   end
   if #t>maxsz then maxsz=#t end
-  table.insert(phrases,torch.IntTensor(t))
+  table.insert(phrases,torch.LongTensor(t))
 end
 local nphrases = #phrases
 print('# of '..params.phr..' = '.. nphrases)
@@ -71,7 +71,7 @@ print('--> maximum length = '..maxsz)
 local outdir = params.dir .. '/lookup/'
 os.execute('mkdir -p '..outdir)
 -- define utility tensors
-local input = torch.FloatTensor(maxsz)
+local input = torch.FloatTensor(params.pfsz, maxsz)
 local output = torch.FloatTensor(nphrases, params.pfsz)
 local weightedsum = torch.FLoatTensor(1,maxsz)
 print('writing phrase embeddings in ' .. outfile .. '...')
@@ -82,7 +82,7 @@ for k,v in ipairs(phrases) do
     output[k]:apply(function() return torch.normal(mean,std) end)
   else
     weightedsum:resize(1,length):fill(1/length)
-    input:resize(length):index(lookup, 1, v)
+    input:resize(params.pfsz, length):index(lookup, 1, v)
     output[k]:mm(weightedsum, input) -- averaging word embeddings
   end
 end

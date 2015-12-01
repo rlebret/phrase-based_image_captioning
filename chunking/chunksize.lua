@@ -1,6 +1,7 @@
 local dir = arg[1]
-local chkfile = io.open(dir .. '/sentences.chk','r')
-local outfile = io.open(chkfile .. 'sz','w')
+local filename = dir .. '/sentences.chk'
+local chkfile = io.open(filename,'r')
+local outfile = io.open(filename .. 'sz','w')
 
 -- loop over lines
 local chksz = {}

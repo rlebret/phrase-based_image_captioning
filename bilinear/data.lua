@@ -13,7 +13,7 @@ __call = function(self, params)
   ------------------------------------------------------------------------------
   -- load text features
   local function load(phr, t)
-    local set={}
+    local trainset={}
     for line in io.lines(params.data..'/text/image_'..phr..'_ge'..t..'.index') do
       local id,idx = line:match("(%d+)\t(%d+)")
       table.insert(trainset,{id=tonumber(id),label=tonumber(idx)})
@@ -23,14 +23,14 @@ __call = function(self, params)
   end
 
   -- load training for each phrase
-  local NP,NPsz = load('NP', params.t)
-  local VP,VPsz = load('VP', params.t)
-  local PP,PPsz = load('PP', params.t)
+  local NP,NPsz = load('NP', params.minfreq)
+  local VP,VPsz = load('VP', params.minfreq)
+  local PP,PPsz = load('PP', params.minfreq)
   local trainset = {NP,VP,PP}
   local trainsz = {NPsz,VPsz,PPsz}
   local weighting = torch.Tensor(trainsz)
   local sampler = walker(weighting:div(weighting:sum()))
-  local rd = {torch.randperm(NPtrainsz), torch.randperm(VPtrainsz),torch.randperm(PPtrainsz)}
+  local rd = {torch.randperm(NPsz), torch.randperm(VPsz),torch.randperm(PPsz)}
 
   -- load image features
   local f=torch.DiskFile(params.data .. '/image/features.bin','r'):binary()

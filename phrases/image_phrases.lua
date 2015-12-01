@@ -24,7 +24,7 @@ local setsz={}
 for line in io.lines(dir..'/nb.txt') do
   table.insert(setsz,tonumber(line))
 end
-print('# of '.. set .. ' images = '..#setsz)
+print('# of images = '..#setsz)
 local setids={}
 for line in io.lines(dir..'/id.txt') do
   table.insert(setids,line)

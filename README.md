@@ -79,7 +79,7 @@ lua chunking/chunksize.lua "$output_dir"
 ### normalize phrases
 Merging some phrases into longer verbal phrases or prepositional phrases.
 ```
-lua normalize_phrases.lua "$output_dir"
+lua chunking/normalize_phrases.lua "$output_dir"
 ```
 
 ## building vocabularies for phrases
