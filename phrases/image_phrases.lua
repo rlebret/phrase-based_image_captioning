@@ -29,7 +29,7 @@ local setids={}
 for line in io.lines(dir..'/id.txt') do
   table.insert(setids,line)
 end
-print('# of '.. set .. ' ids = '..#setids)
+print('# of ids = '..#setids)
 local fsent = io.open(dir..'/sentences.final','r')
 local fchk = io.open(dir..'/sentences.chkszfinal','r')
 -- loop over training images

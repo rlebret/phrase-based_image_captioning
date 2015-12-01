@@ -16,7 +16,7 @@ __call = function(self, params)
     local trainset={}
     for line in io.lines(params.data..'/text/image_'..phr..'_ge'..t..'.index') do
       local id,idx = line:match("(%d+)\t(%d+)")
-      table.insert(trainset,{id=tonumber(id),label=tonumber(idx)})
+      table.insert(trainset,{id=id,label=tonumber(idx)})
     end
     local trainsz = #trainset
     return trainset,trainsz
@@ -30,7 +30,6 @@ __call = function(self, params)
   local trainsz = {NPsz,VPsz,PPsz}
   local weighting = torch.Tensor(trainsz)
   local sampler = walker(weighting:div(weighting:sum()))
-  local rd = {torch.randperm(NPsz), torch.randperm(VPsz),torch.randperm(PPsz)}
 
   -- load image features
   local f=torch.DiskFile(params.data .. '/image/features.bin','r'):binary()
@@ -40,10 +39,11 @@ __call = function(self, params)
   params.ifsz = trainfeatures:size(2)
   -- load indexing for images
   local trainhash={}
-  local trainsz=0
+  local nimages=0
   for line in io.lines(params.data .. '/image/id.txt') do
-    trainsz=trainsz+1
-    trainhash[tonumber(line)]=trainsz
+    nimages=nimages+1
+    table.insert(trainhash, line)
+    trainhash[line]=nimages
   end
 
   local set = {}
@@ -56,6 +56,17 @@ __call = function(self, params)
     local x=trainfeatures:select(1, trainhash[t.id])
     local y=t.label
     return x,y,s
+  end
+
+  function set:nb_images()
+      return nimages
+  end
+
+  function set:random_images()
+        return trainhash[torch.random(nimages)]
+  end
+  function set:image_features(id)
+      return trainfeatures:select(1, trainhash[id])
   end
 
   return set

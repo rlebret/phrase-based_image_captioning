@@ -24,23 +24,20 @@ local words={}
 local vocabsz = 0
 for line in io.lines(params.vocab) do
   vocabsz = vocabsz+1
-  vocab[vocabsz]=vocabsz
+  words[line]=vocabsz
 end
 print("# of word embeddings = "..vocabsz)
+print('loading word embeddings...')
 ---- load embeddings which are in a torch.FloatTensor(nword, dim)
 local femb = torch.DiskFile(params.emb, 'r'):binary()
+local emb = femb:readObject()
+femb:close()
 -- get size
-femb:seekEnd()
-local wfsz = (f:position()-1)/4/vocabsz
+local wfsz = emb:size(2)
 if wfsz < params.pfsz then
   error('word embeddings dimension (=' .. wfsz .. ') is too small')
 end
-femb:seek(1)
-print('loading word embeddings...')
-local emb = torch.FloatTensor(vocabsz,wfsz)
-femb:readFloat(emb:storage())
-femb:close()
-local lookup = tmp:narrow(2, 1, pfsz) -- get the required dimension
+local lookup = emb:narrow(2, 1, params.pfsz) -- get the required dimension
 local mean=lookup:mean()
 local std=lookup:std()
 print('--> mean = '..mean)
@@ -54,6 +51,8 @@ local phrases={}
 local maxsz=0
 for line in io.lines(params.dir..'/vocab/'..params.phr..'.txt') do
   local ph,fq=line:match('(.-)\t(%d+)')
+  fq=tonumber(fq)
+  if fq<params.t then break end
   local t={}
   for w in ph:gmatch('%S+') do
     if words[w] ~= nil then
@@ -73,8 +72,7 @@ os.execute('mkdir -p '..outdir)
 -- define utility tensors
 local input = torch.FloatTensor(params.pfsz, maxsz)
 local output = torch.FloatTensor(nphrases, params.pfsz)
-local weightedsum = torch.FLoatTensor(1,maxsz)
-print('writing phrase embeddings in ' .. outfile .. '...')
+local weightedsum = torch.FloatTensor(1,maxsz)
 -- loop over phrases
 for k,v in ipairs(phrases) do
   local length = v:nElement()
@@ -83,12 +81,12 @@ for k,v in ipairs(phrases) do
   else
     weightedsum:resize(1,length):fill(1/length)
     input:resize(params.pfsz, length):index(lookup, 1, v)
-    output[k]:mm(weightedsum, input) -- averaging word embeddings
+    output:narrow(1,k,1):mm(weightedsum, input) -- averaging word embeddings
   end
 end
 -- create output file
-local outfile = outdir..phrase..'_'..pfsz..'d_ge'..params.t..'.bin'
+local outfile = outdir..params.phr..'_'..params.pfsz..'d_ge'..params.t..'.bin'
+print('writing phrase embeddings in ' .. outfile .. '...')
 local fout = torch.DiskFile(outfile,'w'):binary()
 fout:writeObject(output)
 fout:close()
-
