@@ -9,17 +9,25 @@ cmd:text()
 cmd:text()
 cmd:text('Misc options:')
 cmd:option('-model', '', 'directory where the model are')
+cmd:option('-img', 'images', 'path to directory containing images')
 cmd:option('-seed', 1111, 'seed')
 cmd:option('-topnp', 20, 'number of best NP to display')
 cmd:option('-topvp', 5, 'number of best VP to display')
 cmd:option('-toppp', 5, 'number of best PP to display')
+cmd:option('-display', false, 'display image')
 cmd:text()
 cmd:text()
 
 local inferparams = cmd:parse(arg)
 -- fix a seed
 torch.manualSeed(inferparams.seed)
-
+-- setup display
+local window
+if inferparams.display then
+    require 'image'
+    require 'qtwidget'
+    window = qtwidget.newwindow(500,500)
+end
 -- load parameters
 local fparams = torch.DiskFile(inferparams.model..'/params.bin','r'):binary()
 local params = fparams:readObject()
@@ -100,9 +108,12 @@ end
 local nimages = train:nb_images()
 print('# of images = '..nimages)
 
-while true do
-    -- get random image
-    local id = train:random_images()
+for file in paths.files(inferparams.img,'.jpg') do
+    file = inferparams.img .. '/' .. file
+    if inferparams.display then
+        image.display({image=image.load(file),win=window})
+    end
+    local id = paths.basename(file,'.jpg')
     print('----> image #'..id)
     local feat = train:image_features(id)
     infer(feat)

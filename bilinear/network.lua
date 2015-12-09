@@ -34,9 +34,14 @@ __call = function(self, params)
     params.data..'/lookup/PP_'..params.pfsz..'d_ge'..params.minfreq..'.bin'):binary()
   local PPlookuptable=fpp:readObject()
   fpp:close()
+  -- normalize
+  local phr_stdv = 1./math.sqrt(params.pfsz)
+  NPlookuptable:mul(phr_stdv)
+  VPlookuptable:mul(phr_stdv)
+  PPlookuptable:mul(phr_stdv)
   local lookuptable = {NPlookuptable, VPlookuptable, PPlookuptable}
-  local stdv = 1./math.sqrt(params.ifsz)
-  local weights = torch.Tensor(params.pfsz,params.ifsz):uniform(-stdv,stdv)
+  local img_stdv = 1./math.sqrt(params.ifsz)
+  local weights = torch.Tensor(params.pfsz,params.ifsz):uniform(-img_stdv,img_stdv)
   local input = torch.Tensor(params.pfsz)
 
   -- negative sampling function
@@ -119,6 +124,3 @@ __call = function(self, params)
 end})
 
 return network
-
-
-

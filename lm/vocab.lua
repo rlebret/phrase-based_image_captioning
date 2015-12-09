@@ -1,5 +1,3 @@
-require 'torch'
-local tds = require 'tds'
 --------------------------------------------------------------------------------
 -- Vocabulary
 --------------------------------------------------------------------------------
@@ -8,11 +6,7 @@ setmetatable(vocab,{
 __call = function(self, file, min_freq, verbose)
     verbose = verbose or true
 
-    local function load(phr)
-      -- body
-    end
-    local phrases=tds.hash()
-    local freq=tds.hash()
+    local phrases={}
     local vocabsz=0
     -- loop over vocabulary lines
     for line in io.lines(file) do
@@ -21,11 +15,11 @@ __call = function(self, file, min_freq, verbose)
         if fq >= min_freq then
             vocabsz=vocabsz+1 -- increment vocabulary size
             -- store phrase
-            phrases[vocabsz]=phr
+            table.insert(phrases,phr)
             phrases[phr]=vocabsz
+        else
+            break
         end
-        -- store phrase frequency
-        freq[phr]=fq
     end
     -- set unknown
     local unkn = vocabsz+1
@@ -34,7 +28,9 @@ __call = function(self, file, min_freq, verbose)
         print(' --> # of phrases in '..file..' = ' .. vocabsz)
     end
 
-    local data = {}
+    local data = {
+
+    }
 
     function data:size()
         return vocabsz
@@ -45,12 +41,21 @@ __call = function(self, file, min_freq, verbose)
     end
 
     function data:get(phr)
-        return phrases[phr], freq[phr]
+        if phrases[phr] == nil then
+            return -1
+        else
+            return phrases[phr]
+        end
     end
 
     function data:phrases()
         return phrases
     end
+
+    setmetatable(data,{
+    __index = function(self, index)
+        return phrases[index]
+    end})
 
     return data
 end})
