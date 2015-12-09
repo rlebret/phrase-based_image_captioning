@@ -119,28 +119,28 @@ lua phrases/image_phrases.lua "PP" "$output_dir" 10
 
 ## getting transition probabilities between phrases
 
-## get pairs of phrases from image captions
+### get pairs of phrases from image captions
 ```
 cd lm
 lua phrases_pairs.lua "$output_dir" 10
 cd ..
 ```
 
-## get transition probabilities between phrases
+### get transition probabilities between phrases
 ```
 cd lm
 th transition-proba.lua "$output_dir" 10
 cd ..
 ```
 
-## get vocabularies for phrase pairs
+### get vocabularies for phrase pairs
 ```
 cd lm
 lua vocab-biphrase.lua "$output_dir" 10
 cd ..
 ```
 
-## get transition probabilities between phrase pairs
+### get transition probabilities between phrase pairs
 ```
 cd lm
 th transition-proba-biphrase.lua "$output_dir" 10 NP-PP NP
