@@ -39,6 +39,12 @@ output_dir/
     NP_given_VP_ge10.txt     # noun phrases probabilities given a verbal phrase
     NP_given_PP_ge10.txt     # noun phrases probabilities given a prepositional phrase
     CHK_given_NP_ge10.txt    # type of phrases probabilities given noun phrase type
+    NP_given_NP-PP_ge10.txt  # noun phrases probabilities given a noun-prepositional pair phrases
+    NP_given_NP-VP_ge10.txt  # noun phrases probabilities given a noun-verbal pair phrases
+    VP_given_PP-NP_ge10.txt  # verbal phrases probabilities given a prepositional-noun pair phrases
+    VP_given_VP-NP_ge10.txt  # verbal phrases probabilities given a noun-prepositional pair phrases
+    PP_given_PP-NP_ge10.txt  # prepositional phrases probabilities given a prepositional-noun pair phrases
+    PP_given_VP-NP_ge10.txt  # prepositional phrases probabilities given a verbal-noun pair phrases
   image/
     features.bin             # 2D torch.FloatTensor object with image features
     id.txt                   # image ids
