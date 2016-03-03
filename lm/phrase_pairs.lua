@@ -1,4 +1,4 @@
-local vocab = dofile('vocab.lua')
+local vocab = paths.dofile('vocab.lua')
 local dir = arg[1]
 local t=tonumber(arg[2])
 local outdir = dir .. '/text/'
@@ -35,6 +35,9 @@ for i=1,#setsz do
     local sentline=fsent:read()
     local chkline=fchk:read()
     local chunk={}
+    -- add it to avoid error in line 90 in this file
+    chunk[0] = 'skip'
+    
     for sz,ph in chkline:gmatch('(%d+)%-(%S+)') do
       table.insert(chunk,{ph=ph,sz=sz})
     end
